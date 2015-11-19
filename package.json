@@ -1,0 +1,24 @@
+{
+  "name": "registry-mock",
+  "version": "1.0.0",
+  "description": "mock registry for publishing",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "github.com/jcrugzz/registry-mock"
+  },
+  "keywords": [
+    "registry",
+    "mock",
+    "publish",
+    "cache"
+  ],
+  "author": "Charlie Robbins <charlie.robbins@gmail.com>",
+  "license": "MIT",
+  "dependencies": {
+    "concat-stream": "^1.5.1"
+  }
+}
