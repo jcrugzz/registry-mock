@@ -49,7 +49,7 @@ allows for simple introspection of the payloads that are sent from the `npm` CLI
 
 e.g. **Viewing `npm publish` payloads**
 
-##### 1. Running `npm-registry-echo`
+#### 1. Running `npm-registry-echo`
 ```
 $ npm i -g registry-mock
 $ npm-registry-echo
@@ -74,7 +74,18 @@ npm http 201 http://localhost:3676/test-publish03
 
 #### 4. See the output
 ```
-PUT /test-publish03 {"_id":"test-publish03","name":"test-publish03","description":"Just a test","dist-tags":{"latest":"1.0.0"},"versions":{"1.0.0":{"name":"test-publish03","version":"1.0.0","description":"Just a test","main":"index.js","scripts":{"test":"echo \"Error: no test specified\" && exit 1"},"author":"","license":"ISC","readme":"ERROR: No README data found!","_id":"test-publish03@1.0.0","_shasum":"6e78734fff0347a9596abb5d3b0360fda6f1a899","_from":".","_npmVersion":"3.7.1","_nodeVersion":"4.2.2","_npmUser":{"name":"garbage!!user","email":"anyvalid@email.com"},"maintainers":[{"name":"garbage!!user","email":"anyvalid@email.com"}],"dist":{"shasum":"6e78734fff0347a9596abb5d3b0360fda6f1a899","tarball":"http://localhost:3676/test-publish03/-/test-publish03-1.0.0.tgz"}}},"readme":"ERROR: No README data found!","maintainers":[{"name":"garbage!!user","email":"anyvalid@email.com"}],"_attachments":{"test-publish03-1.0.0.tgz":{"content_type":"application/octet-stream","data":"{{BIG-BASE64-TARBALL}}","length":568}}}
+PUT /test-publish03 {"_id":"test-publish03","name":"test-publish03","description":"Just a
+test","dist-tags":{"latest":"1.0.0"},"versions":{"1.0.0":{"name":"test-publish03","version":
+"1.0.0","description":"Just a test","main":"index.js","scripts":{"test":"echo \"Error: no test
+specified\" && exit 1"},"author":"","license":"ISC","readme":"ERROR: No README data found!",
+"_id":"test-publish03@1.0.0","_shasum":"6e78734fff0347a9596abb5d3b0360fda6f1a899","_from":".",
+"_npmVersion":"3.7.1","_nodeVersion":"4.2.2","_npmUser":{"name":"garbage!!user","email":
+"anyvalid@email.com"},"maintainers":[{"name":"garbage!!user","email":"anyvalid@email.com"}],
+"dist":{"shasum":"6e78734fff0347a9596abb5d3b0360fda6f1a899","tarball":
+"http://localhost:3676/test-publish03/-/test-publish03-1.0.0.tgz"}}},"readme":"ERROR:
+No README data found!","maintainers":[{"name":"garbage!!user","email":"anyvalid@email.com"}],
+"_attachments":{"test-publish03-1.0.0.tgz":{"content_type":"application/octet-stream",
+"data":"{{BIG-BASE64-TARBALL}}","length":568}}}
 ```
 
 ##### License MIT
