@@ -1,0 +1,33 @@
+#!/usr/bin/env node
+
+var hyperquest = require('hyperquest'),
+    concat = require('concat-stream');
+
+var port = process.env.PORT || 3676;
+
+require('../')({ http: port }, function (err, registry) {
+  if (err) { throw err; }
+
+  console.log('npm-registry-echo listening on %s', port);
+
+  registry.server.on('request', function (req) {
+    if (req.headers['x-fetch-cache']) { return; }
+
+    var status;
+
+    hyperquest('http://localhost:' + port + req.url, {
+      headers: {
+        'x-fetch-cache': true,
+        'x-clear-cache': true
+      }
+    }).pipe(concat({ encoding: 'string' }, function (data) {
+      console.log('%s %s %s', req.method, req.url, data);
+
+      if (process.env.DUMP_CACHE || req.headers['x-dump-cache']) {
+        setTimeout(function () {
+          console.dir(registry.cache);
+        }, 2500);
+      }
+    }));
+  });
+});
