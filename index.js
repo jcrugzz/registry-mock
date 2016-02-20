@@ -3,7 +3,10 @@
 var http = require('http'),
     concat = require('concat-stream');
 
-var hasScope = /^@/;
+var patterns = {
+  hasScope: /^@/,
+  isPublish: /^\/[\w\-\.]+$/
+};
 
 /**
  * function
@@ -15,14 +18,17 @@ var hasScope = /^@/;
 module.exports = function (opts, callback) {
   var registry = new Registry(opts);
 
-  console.log('starting registry-echo with opts', opts);
-
   registry.listen(function (err) {
     return !err
       ? callback(null, registry)
       : callback(err);
   });
 };
+
+//
+// Expose the Registry for debugging purposes
+//
+module.exports.Registry = Registry;
 
 /**
  * @constructor Registry
@@ -34,7 +40,7 @@ function Registry(opts) {
   this.server = http.createServer(this.handler.bind(this));
   this.cache = {};
   this.port = opts.http;
-}
+};
 
 /**
  * @function Handler
@@ -72,6 +78,10 @@ Registry.prototype.serveCache = function (req, res) {
   if (this.cache[req.url]) {
     res.writeHead(200, { 'content-type': 'application/json' });
     res.end(this.cache[req.url]);
+    if (req.headers['x-clear-cache']) {
+      this.cache[req.url] = null;
+    }
+
     return;
   }
 
@@ -115,21 +125,39 @@ Registry.prototype.cacheRequest = function (req, res) {
     return (response || defaults);
   }
 
-  var self = this;
-  req.pipe(concat({ encoding: 'string' }, function (data) {
-    var parsed = JSON.parse(data),
-        name = req.url.substr(1),
-        file = name + '-' + parsed['dist-tags'].latest + '.tgz';
+  /**
+   * @function cacheTarball
+   * JSON parses the data and caches the corresponding
+   * tarball at the URL the registry would fetch it from
+   */
+  function cacheTarball(data) {
+    var parsed = JSON.parse(data);
+    var name = req.url.substr(1);
+    var file = name + '-' + parsed['dist-tags'].latest + '.tgz';
 
-    if (hasScope.test(name)) {
+    if (patterns.hasScope.test(name)) {
       file = file.replace('%2F', '/');
     }
 
-    self.cache[req.url] = data;
     self.cache[req.url + '/-/' + file] = new Buffer(
       parsed._attachments[file].data,
       'base64'
     );
+  }
+
+  var self = this;
+  req.pipe(concat({ encoding: 'string' }, function (data) {
+    //
+    // Cache the raw response at the URL.
+    //
+    self.cache[req.url] = data;
+
+    //
+    // Optionally cache the tarball of the publish payload.
+    //
+    if (req.method === 'PUT' && patterns.isPublish.test(req.url)) {
+      cacheTarball(data);
+    }
 
     var send = parseResponse();
     res.writeHead(send.status, { 'content-type': 'application/json' });
