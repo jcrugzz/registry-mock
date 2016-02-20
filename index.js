@@ -3,12 +3,19 @@
 var http = require('http'),
     concat = require('concat-stream');
 
+var hasScope = /^@/;
+
 /**
+ * function
+ * @param {Object} opts - options to create mock registry
+ * @param {function} callback
  * Creates a new mock registry server with
  * the `opts` supplied.
  */
 module.exports = function (opts, callback) {
   var registry = new Registry(opts);
+
+  console.log('starting registry-echo with opts', opts);
 
   registry.listen(function (err) {
     return !err
@@ -18,6 +25,8 @@ module.exports = function (opts, callback) {
 };
 
 /**
+ * @constructor Registry
+ * @param {Object} opts - Options for registry
  * Represents a mock npm Registry server which is used
  * to assert responses received on certain routes.
  */
@@ -28,6 +37,9 @@ function Registry(opts) {
 }
 
 /**
+ * @function Handler
+ *  @param {Request} req - Request object
+ *  @param {Response} res - Response object
  * Handles incoming requests based on a simple decision
  * - All requests with X-FETCH-CACHE header respond
  *   with the last request body received for that route
@@ -50,6 +62,9 @@ Registry.prototype.handler = function (req, res) {
 };
 
 /**
+ * @function serveCache
+ *  @param {Request} req - Incoming request
+ *  @param {Response} res - Outgoing response
  * Serves the cached request data for the specified
  * `req.url` if it exists.
  */
@@ -65,6 +80,9 @@ Registry.prototype.serveCache = function (req, res) {
 };
 
 /**
+ * @function cacheRequest
+ *  @param {Request} req - Incoming Request
+ *  @param {Response} res - Outgoing Response
  * Caches the req data and serves up any data from
  * the X-SEND-RESPONSE request header.
  */
@@ -76,6 +94,7 @@ Registry.prototype.cacheRequest = function (req, res) {
   }
 
   /**
+   * @function parseResponse
    * Attempts to get the respond to send.
    */
   function parseResponse() {
@@ -102,6 +121,10 @@ Registry.prototype.cacheRequest = function (req, res) {
         name = req.url.substr(1),
         file = name + '-' + parsed['dist-tags'].latest + '.tgz';
 
+    if (hasScope.test(name)) {
+      file = file.replace('%2F', '/');
+    }
+
     self.cache[req.url] = data;
     self.cache[req.url + '/-/' + file] = new Buffer(
       parsed._attachments[file].data,
@@ -115,6 +138,8 @@ Registry.prototype.cacheRequest = function (req, res) {
 };
 
 /**
+ * @function listen
+ *  @param {function} callback - Continuation function
  * Begins listening on the internal HTTP server
  * associated with this instance.
  */
@@ -123,7 +148,10 @@ Registry.prototype.listen = function (callback) {
 };
 
 /**
- * Close the HTTP server
+ * @function close
+ *  @param {function} callback - Continuation function
+ * Stops listening on the internal HTTP server
+ * associated with this instance.
  */
 Registry.prototype.close = function (callback) {
   this.server.close(callback);
